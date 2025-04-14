@@ -20,7 +20,11 @@ def save_game_data(current_url):
 
     while current_url:
 
-        r = requests.get(current_url)
+        try:
+            r = requests.get(current_url)
+            r.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"Faced an error: {e}")
 
         soup = BeautifulSoup(r.content, 'html.parser')
 
@@ -37,7 +41,6 @@ def save_game_data(current_url):
         else:
             next_page_link = next_page.get('href')
             current_url = f"{BASE_URL}{next_page_link}"
-        
-        sleep(10)
+            sleep(1)
 
 save_game_data(FIRST_URL)
