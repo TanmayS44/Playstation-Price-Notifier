@@ -16,27 +16,28 @@ def parse_platforms(available_platforms: list):
         main_platform = "PS5" if "PS5" in relevant_platforms else "PS4"
         pprint.pp(main_platform)
 
-def save_game_data(url):
-    global BASE_URL
-    
-    r = requests.get(url)
+def save_game_data(current_url):
 
-    soup = BeautifulSoup(r.content, 'html.parser')
+    while current_url:
 
-    names = soup.select('.game-collection-item-details-title')
-    available_platforms = soup.select('.game-collection-item-top-platform')
+        r = requests.get(current_url)
 
-    parse_names(names)
-    parse_platforms(available_platforms)
+        soup = BeautifulSoup(r.content, 'html.parser')
 
-    next_page = soup.select_one('.next a')
+        names = soup.select('.game-collection-item-details-title')
+        available_platforms = soup.select('.game-collection-item-top-platform')
 
-    if next_page != None:
-        next_page_link = next_page.get('href')
-        save_game_data(f"{BASE_URL}{next_page_link}")
-    else:
-        print("error")
+        parse_names(names)
+        parse_platforms(available_platforms)
 
-    sleep(10)
+        next_page = soup.select_one('.next a')
+
+        if next_page is None:
+            current_url = None
+        else:
+            next_page_link = next_page.get('href')
+            current_url = f"{BASE_URL}{next_page_link}"
+        
+        sleep(10)
 
 save_game_data(FIRST_URL)
